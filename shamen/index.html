@@ -1,33 +1,36 @@
 <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>Draggable Example</title>
-        <style type="text/css">
-            .component {
-                width: 400px;
-                height: 200px;
-                background: #ccc;
-            }
+<html lang="en">
 
-            .handle {
-                height: 20px;
-                background: #000;
-            }
-        </style>
-    </head>
-    <body style="">
-        <div class="component">
-            <div class="handle"></div>
-        </div>
-        <script type="text/javascript" src="components/jquery/dist/jquery.js"></script>
-        <script type="text/javascript" src="shamen.js"></script>
-        <script type="text/javascript">
-            (function () {
-                var draggable = new Shamen($('.component')[0], {
-                    dragHandle: '.handle'
-                });
-            })();
-        </script>
-    </body>
+<head>
+    <meta charset="utf-8">
+    <title>Draggable Example</title>
+    <style type="text/css">
+        .component {
+            width: 400px;
+            height: 200px;
+            background: #ccc;
+        }
+        
+        .handle {
+            height: 20px;
+            background: #000;
+        }
+    </style>
+</head>
+
+<body style="">
+    <div class="component">
+        <div class="handle"></div>
+    </div>
+    <script src="../lib/jquery/3.2.0/jquery.js"></script>
+    <script src="shamen.js"></script>
+    <script>
+        (function () {
+            var draggable = new Shamen($('.component')[0], {
+                dragHandle: '.handle'
+            });
+        })();
+    </script>
+</body>
+
 </html>

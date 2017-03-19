@@ -1,4 +1,4 @@
-(function (root, $) {
+(function (global, $) {
 
     'use strict';
 
@@ -89,6 +89,6 @@
         return $.isFunction(val) ? val() : val;
     };
 
-    window.Voltron = window.Voltron || Voltron;
+    global.Voltron = Voltron;
 
-})(window, jQuery);
+})(this, this.jQuery);

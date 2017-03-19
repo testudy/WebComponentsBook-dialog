@@ -1,5 +1,5 @@
 // Eh-neeek-chock
-var ApacheChief = (function (global, $) {
+(function (global, $) {
 
     'use strict';
 
@@ -76,7 +76,7 @@ var ApacheChief = (function (global, $) {
             if (handlesCss[handles[i]]) {
                 this.$el
                     .append($('<div class="apache-chief-resize" data-handle="' + handles[i] + '">')
-                    .css(handlesCss[handles[i]]));
+                        .css(handlesCss[handles[i]]));
             }
         }
 
@@ -103,7 +103,7 @@ var ApacheChief = (function (global, $) {
             var adjustPosition = direction !== 'BM' &&
                 direction !== 'MR' && direction !== 'BR';
             // get the initial mouse position
-             var mousePos = {
+            var mousePos = {
                 x: e.pageX,
                 y: e.pageY
             };
@@ -198,6 +198,6 @@ var ApacheChief = (function (global, $) {
         this.options = defaults;
     };
 
-    return ApacheChief;
+    global.ApacheChief = ApacheChief;
 
-})(window, jQuery);
+})(this, this.jQuery);

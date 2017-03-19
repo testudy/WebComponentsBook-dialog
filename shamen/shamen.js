@@ -1,5 +1,5 @@
 // i can move any mountain
-var Shamen = (function (window, $) {
+(function (global, $) {
 
     'use strict';
 
@@ -31,7 +31,7 @@ var Shamen = (function (window, $) {
 
         // unbind mousemove handler on mouseup
         $('body').on('mouseup.shamen', function (e) {
-            $(window).off('mousemove.shamen');
+            $(global).off('mousemove.shamen');
         });
 
         this.$el.on('mousedown.shamen', selector, function (e) {
@@ -42,7 +42,7 @@ var Shamen = (function (window, $) {
             };
 
             // bind the mousemove handler
-            $(window).on('mousemove.shamen', function (e) {
+            $(global).on('mousemove.shamen', function (e) {
                 // get the differences between the mousedown position and the
                 // position from the mousemove events
                 var xDiff = e.pageX - mousePos.x;
@@ -90,6 +90,6 @@ var Shamen = (function (window, $) {
         this.options = defaults;
     };
 
-    return Shamen;
+    global.Shamen = Shamen;
 
-})(window, jQuery);
+})(this, this.jQuery);

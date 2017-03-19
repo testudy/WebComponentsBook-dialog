@@ -8,7 +8,7 @@
     Dialog.prototype.constructor = Dialog;
 
     // constructor
-    function Dialog (options) {
+    function Dialog(options) {
         // optionally clone dialog $el
         options.$el = options.clone ? $(options.$el).clone() :
             $(options.$el);
@@ -52,7 +52,7 @@
     Dialog.prototype.events = {};
 
     // process template for injection into DOM
-    Dialog.prototype.render = function () {};
+    Dialog.prototype.render = function () { };
 
     // makes dialog visible in the UI
     Dialog.prototype.show = function () {
@@ -62,7 +62,7 @@
     };
 
     // makes dialog invisible in the UI
-    Dialog.prototype.hide = function () {};
+    Dialog.prototype.hide = function () { };
 
     Dialog.prototype.destroy = function () {
         // clean up overlay

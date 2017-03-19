@@ -1,4 +1,4 @@
-var Duvet = (function (window, $, jenga) {
+(function (global, $, jenga) {
 
     'use strict';
 
@@ -63,13 +63,13 @@ var Duvet = (function (window, $, jenga) {
         var rect;
         // https://api.jquery.com/position/
         // relative to the offset parent
-        var offset = el === window ? { top: 0, left: 0 } : $(el).position();
+        var offset = el === global ? { top: 0, left: 0 } : $(el).position();
 
         // if containing element is the window object
         // then use $ methods for getting the width and height
-        if (el === window) {
-            var width = $(window).width();
-            var height = $(window).height();
+        if (el === global) {
+            var width = $(global).width();
+            var height = $(global).height();
 
             rect = {
                 right: width,
@@ -106,10 +106,10 @@ var Duvet = (function (window, $, jenga) {
 
     function position(el, options) {
         var pos = {};
-        var $parent = el.parentNode.tagName === 'BODY' ? $(window) : $(el.parentNode);
+        var $parent = el.parentNode.tagName === 'BODY' ? $(global) : $(el.parentNode);
         var $el = $(el);
         // get the scrollbar offset
-        var scrollbarOffset = getScrollbarOffset(el.parentNode.tagName === 'BODY' ? window : el.parentNode);
+        var scrollbarOffset = getScrollbarOffset(el.parentNode.tagName === 'BODY' ? global : el.parentNode);
 
         //  parent el is the offset parent
         if (el.parentNode !== el.offsetParent) {
@@ -219,10 +219,10 @@ var Duvet = (function (window, $, jenga) {
                 break;
             case 'TR':
                 css.top = (alignToElDim.top - elDim.height) - parentAlignToElMargins.top;
-                css.left = (alignToElDim.right - elDim.width)  - parentAlignToElMargins.left;
+                css.left = (alignToElDim.right - elDim.width) - parentAlignToElMargins.left;
                 break;
             case 'BL':
-                css.top = alignToElDim.bottom  - parentAlignToElMargins.top;
+                css.top = alignToElDim.bottom - parentAlignToElMargins.top;
                 css.left = alignToElDim.left - parentAlignToElMargins.left;
                 break;
             case 'BR':
@@ -287,7 +287,7 @@ var Duvet = (function (window, $, jenga) {
             // if alignToEl is bod then reassign to window since body height
             // is equal to content height
             this.options.alignToEl = this.options.alignToEl.tagName === 'BODY' ?
-                $(window)[0] : this.options.alignToEl;
+                $(global)[0] : this.options.alignToEl;
             align(this.el, this.options);
         } else {
             position(this.el, this.options);
@@ -317,6 +317,6 @@ var Duvet = (function (window, $, jenga) {
         this.options = defaults;
     };
 
-    return Duvet;
+    global.Duvet = Duvet;
 
-})(window, jQuery, jenga);
+})(this, this.jQuery, this.jenga);
