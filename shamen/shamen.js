@@ -30,11 +30,17 @@
         var self = this;
 
         // unbind mousemove handler on mouseup
-        $('body').on('mouseup.shamen', function (e) {
-            $(global).off('mousemove.shamen');
+        $(global.document.documentElement).on('mouseup.shamen', function (e) {
+            $(global.document.documentElement).off('mousemove.shamen');
         });
 
         this.$el.on('mousedown.shamen', selector, function (e) {
+            // IE 兼容代码，解决鼠标超出浏览器界外之后依然可以拖动
+            // https://www.web-tinker.com/article/20241.html
+            if (e.target.setCapture) {
+                e.target.setCapture();
+            }
+            
             // get the initial mouse position
             var mousePos = {
                 x: e.pageX,
@@ -42,7 +48,7 @@
             };
 
             // bind the mousemove handler
-            $(global).on('mousemove.shamen', function (e) {
+            $(global.document.documentElement).on('mousemove.shamen', function (e) {
                 // get the differences between the mousedown position and the
                 // position from the mousemove events
                 var xDiff = e.pageX - mousePos.x;
