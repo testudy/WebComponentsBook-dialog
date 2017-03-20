@@ -25,6 +25,8 @@
             var component = new Voltron({
                 $el: '.component',
                 events: {
+                    // 'click [data-action=unbind]': 'unbind',
+                    // 'click [data-action=destroy]': 'destroy',
                     'click [data-action]': function (e) {
                         var action = $(e.currentTarget).attr('data-action');
                         e.preventDefault();
