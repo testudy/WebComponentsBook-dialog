@@ -45,7 +45,7 @@
             // if value is not a funciton then
             // find corresponding instance method
             if (!$.isFunction(method)) {
-                method = this[events[key]];
+                method = this[method];
             }
             // if a method does not exist move
             // to next item in the events hash
