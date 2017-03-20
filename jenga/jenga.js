@@ -15,18 +15,17 @@
     // i did not write this; if someone knows who did please let me know
     // so i can attribute the code to the author
     var browser = (function () {
-        var N = navigator.appName;
         var ua = navigator.userAgent;
-        var tem;
-        var M = ua.match(/(opera|chrome|safari|firefox|msie)\/?\s*(\.?\d+(\.\d+)*)/i);
-        if (M && (tem = ua.match(/version\/([\.\d]+)/i)) != null) {
-            M[2] = tem[1];
+        var temp;
+        var info = ua.match(/(opera|chrome|safari|firefox|msie)\/?\s*(\.?\d+(\.\d+)*)/i);
+        if (info && (temp = ua.match(/version\/([\.\d]+)/i)) != null) {
+            info[2] = temp[1];
         }
-        M = M ? [M[1], M[2]] : [N, navigator.appVersion, '-?'];
+        info = info ? [info[1], info[2]] : [navigator.appName, navigator.appVersion, '-?'];
 
         return {
-            name: M[0].toLowerCase(),
-            version: M[1]
+            name: info[0].toLowerCase(),
+            version: info[1]
         };
     })();
 
@@ -43,8 +42,8 @@
     }
 
     function isPosAndHasZindex(el) {
-        return (el.style.position && el.style.position !== 'static') && (el.style.zIndex !== 'auto' &&
-            !isNaN(parseInt(el.style.zIndex, 10)));
+        return (el.style.position && el.style.position !== 'static') && 
+            (el.style.zIndex !== 'auto' && !isNaN(parseInt(el.style.zIndex, 10)));
     }
 
     // these values cause an element to create a stacking context
