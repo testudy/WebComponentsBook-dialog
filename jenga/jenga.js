@@ -37,148 +37,113 @@
         return browsers[browser.name].fixed >= parseInt(browser.version, 10);
     })();
 
-    function isFunction(thing) {
-        return typeof thing === 'function';
+    function getComputedStyle(element) {
+        return global.getComputedStyle(element);
     }
 
-    function isPosAndHasZindex(el) {
-        return (el.style.position && el.style.position !== 'static') && 
-            (el.style.zIndex !== 'auto' && !isNaN(parseInt(el.style.zIndex, 10)));
+    function isPosAndHasZindex(element) {
+        var computedStyle = getComputedStyle(element);
+        return (computedStyle.position && computedStyle.position !== 'static') &&
+            (computedStyle.zIndex !== 'auto' && !isNaN(parseInt(computedStyle.zIndex, 10)));
     }
 
     // these values cause an element to create a stacking context
-    function doesStyleCreateStackingCtx(el) {
-        var styles = el.style;
+    function doesStyleCreateStackingCtx(element) {
+        var computedStyle = getComputedStyle(element);
 
-        if (styles.opacity < 1) {
+        if (computedStyle.opacity < 1) {
             return true;
         }
-        if (styles.transform !== 'none') {
+        if (computedStyle.transform !== 'none') {
             return true;
         }
-        if (styles.transformStyle === 'preserve-3d') {
+        if (computedStyle.transformStyle === 'preserve-3d') {
             return true;
         }
-        if (styles.perspective !== 'none') {
+        if (computedStyle.perspective !== 'none') {
             return true;
         }
-        if (styles.flowFrom !== 'none' && styles.content !== 'normal') {
+        if (computedStyle.flowFrom !== 'none' && computedStyle.content !== 'normal') {
             return true;
         }
-        if (styles.position === 'fixed' && isFixedStackingCtx) {
+        if (computedStyle.position === 'fixed' && isFixedStackingCtx) {
             return true;
         }
 
         return false;
     }
 
-    function findElAncestor(el, ancestorEl, stackingCtxEl) {
-        var parentNode = el.parentNode;
-        if (stackingCtxEl === parentNode || parentNode.tagName === 'BODY') {
-            return el;
-        }
+    function isStackingCtx(element) {
+        return element.tagName === 'HTML' ||
+            isPosAndHasZindex(element) ||
+            doesStyleCreateStackingCtx(element);
+    }
 
-        while (parentNode.parentNode.tagName !== 'BODY') {
+    function setStackingCtx(element) {
+        var computedStyle = getComputedStyle(element);
+
+        if (computedStyle.position === 'static') {
+            element.style.position = 'relative';
+        }
+    }
+
+    function getStackingCtx(element) {
+        var parentNode = element.parentNode;
+
+        while (!isStackingCtx(parentNode)) {
             parentNode = parentNode.parentNode;
         }
 
         return parentNode;
     }
 
-    function modifyZindex(el, increment) {
-        var stackingCtxEl = jenga.getStackingCtx(el);
-        var siblings;
-        var siblingsMaxMinZindex = increment ? 0 : -1;
-        var elAncestor = el;
-        var siblingZindex;
-        var i = 0;
+    function getZIndexes(element, isSkip) {
+        var result = [];
+        if (!isSkip) {
+            var zIndex = parseInt(getComputedStyle(element)['z-index'], 10);
+            if (!isNaN(zIndex)) {
+                result.push(zIndex);
+                return result;
+            };
+        }
 
-        stackingCtxEl = stackingCtxEl.tagName === 'HTML' ? document.getElementsByTagName('body')[0] : stackingCtxEl;
-        siblings = stackingCtxEl.childNodes;
-        if (stackingCtxEl !== el.parentNode) {
-            for (i; i < siblings.length; i++) {
-                elAncestor = findElAncestor(el, siblings[i], stackingCtxEl);
+        [].slice.call(element.children).forEach(function (child) {
+            var childResult = getZIndexes(child, false);
+            if (childResult.length) {
+                result.push.apply(result, childResult);
             }
-        }
+        });
 
-        for (i = 0; i < siblings.length; i++) {
-            if (siblings[i].nodeType === 1 && isPosAndHasZindex(siblings[i]) && siblings[i] !== elAncestor) {
-                siblingZindex = parseInt(siblings[i].style.zIndex, 10);
-                if (isNaN(siblingZindex)) {
-                    continue;
-                }
-
-                if (increment) {
-                    siblingsMaxMinZindex = siblingZindex > siblingsMaxMinZindex ?
-                        siblingZindex : siblingsMaxMinZindex;
-                } else {
-                    siblingsMaxMinZindex = siblingsMaxMinZindex < 0 || siblingZindex < siblingsMaxMinZindex ?
-                        siblingZindex : siblingsMaxMinZindex;
-                }
-            }
-        }
-
-        // adjusted z-index is 0 and sending to back then bump all other elements up by 1
-        if (!siblingsMaxMinZindex && !increment) {
-            for (i = 0; i < siblings.length; i++) {
-                if (siblings[i].nodeType === 1 && siblings[i] !== el) {
-                    siblingZindex = parseInt(siblings[i].style.zIndex, 10);
-                    if (isNaN(siblingZindex)) {
-                        continue;
-                    }
-
-                    siblings[i].style.zIndex = ++siblingZindex;
-                }
-            }
-        }
-
-        elAncestor.style.zIndex = increment ? siblingsMaxMinZindex + 1 : (siblingsMaxMinZindex > 0 ? siblingsMaxMinZindex - 1 : 0);
-        if (!isPosAndHasZindex(elAncestor)) {
-            elAncestor.style.position = 'relative';
-        }
+        return result;
     }
 
-    function moveUpDown(el, createStackingCtx, root, increment) {
-        var stackingCtxEl = jenga.getStackingCtx(el);
+    function getMaxZIndex(element) {
+        var zIndexes = getZIndexes(element, true);
 
-        if (createStackingCtx && stackingCtxEl !== el.parentNode) {
-            if (isFunction(createStackingCtx)) {
-                createStackingCtx(el.parentNode);
-            } else {
-                el.parentNode.style.position = 'relative';
-                el.parentNode.style.zIndex = 0;
-            }
+        return Math.max.apply(null, zIndexes);
+    }
+
+    function bringToFront(element) {
+        var computedStyle = getComputedStyle(element);
+        var stackingCtx = getStackingCtx(element);
+        var maxZIndex = getMaxZIndex(stackingCtx);
+
+        if (!isStackingCtx(element)) {
+            setStackingCtx(element);
+        } else if (global.parseInt(computedStyle['z-index'], 10) === maxZIndex) {
+            return;
         }
 
-        modifyZindex(el, increment);
-        if (root && (root !== jenga.getStackingCtx(el) && stackingCtxEl.tagName !== 'BODY')) {
-            moveUpDown(stackingCtxEl, createStackingCtx, root, increment);
-        }
+        element.style.zIndex = maxZIndex + 1;
     }
 
     var jenga = {
 
-        isStackingCtx: function (el) {
-            return el.tagName === 'HTML' || (isPosAndHasZindex(el) && doesStyleCreateStackingCtx(el));
-        },
+        isStackingCtx: isStackingCtx,
 
-        getStackingCtx: function (el) {
-            var parentNode = el.parentNode;
+        getStackingCtx: getStackingCtx,
 
-            while (!jenga.isStackingCtx(parentNode)) {
-                parentNode = parentNode.parentNode;
-            }
-
-            return parentNode;
-        },
-
-        bringToFront: function (el, createStackingCtx, root) {
-            moveUpDown(el, createStackingCtx, root, true);
-        },
-
-        sendToBack: function (el, createStackingCtx, root) {
-            moveUpDown(el, createStackingCtx, root, false);
-        }
+        bringToFront: bringToFront
     };
 
     global.jenga = jenga;
