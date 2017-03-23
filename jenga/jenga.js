@@ -120,7 +120,7 @@
     function getMaxZIndex(element) {
         var zIndexes = getZIndexes(element, true);
 
-        return Math.max.apply(null, zIndexes);
+        return Math.max(Math.max.apply(null, zIndexes), 0);
     }
 
     function bringToFront(element) {
