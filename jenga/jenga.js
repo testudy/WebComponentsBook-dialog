@@ -38,7 +38,33 @@
     })();
 
     function getComputedStyle(element) {
-        return global.getComputedStyle(element);
+        if (global.getComputedStyle) {
+            return global.getComputedStyle(element);
+        }
+
+        // 参考：http://snipplr.com/view/13523/ 修改
+        if (!global.getComputedStyle) {
+            var computedStyle = {};
+
+            for (var i in element.currentStyle) {
+                computedStyle[i] = element.currentStyle[i];
+            }
+
+            computedStyle.getPropertyValue = function (property) {
+                var re = /(\-([a-z]){1})/g;
+                if (property === 'float') {
+                    property = 'styleFloat';
+                }
+                if (re.test(property)) {
+                    property = property.replace(re, function () {
+                        return arguments[2].toUpperCase();
+                    });
+                }
+                return this[property] || null;
+            };
+
+            return computedStyle;
+        }
     }
 
     function isPosAndHasZindex(element) {
@@ -51,19 +77,20 @@
     function doesStyleCreateStackingCtx(element) {
         var computedStyle = getComputedStyle(element);
 
-        if (computedStyle.opacity < 1) {
+        if (computedStyle.opacity !== undefined && computedStyle.opacity < 1) {
             return true;
         }
-        if (computedStyle.transform !== 'none') {
+        if (computedStyle.transform !== undefined && computedStyle.transform !== 'none') {
             return true;
         }
-        if (computedStyle.transformStyle === 'preserve-3d') {
+        if (computedStyle.transformStyle !== undefined && computedStyle.transformStyle === 'preserve-3d') {
             return true;
         }
-        if (computedStyle.perspective !== 'none') {
+        if (computedStyle.perspective !== undefined && computedStyle.perspective !== 'none') {
             return true;
         }
-        if (computedStyle.flowFrom !== 'none' && computedStyle.content !== 'normal') {
+        if (computedStyle.flowFrom !== undefined && computedStyle.flowFrom !== 'none' && 
+                computedStyle.content !== undefined && computedStyle.content !== 'normal') {
             return true;
         }
         if (computedStyle.position === 'fixed' && isFixedStackingCtx) {
@@ -99,20 +126,23 @@
 
     function getZIndexes(element, isSkip) {
         var result = [];
-        if (!isSkip) {
-            var zIndex = parseInt(getComputedStyle(element)['z-index'], 10);
+        if (!isSkip && isPosAndHasZindex(element)) {
+            var zIndex = parseInt(getComputedStyle(element).zIndex, 10);
             if (!isNaN(zIndex)) {
                 result.push(zIndex);
                 return result;
             };
         }
 
-        [].slice.call(element.children).forEach(function (child) {
+        var children = element.children;
+        for(var i = 0, len = children.length; i < len; i += 1) {
+            var child = children[i];
             var childResult = getZIndexes(child, false);
             if (childResult.length) {
                 result.push.apply(result, childResult);
             }
-        });
+        }
+        
 
         return result;
     }
@@ -130,10 +160,13 @@
 
         if (!isStackingCtx(element)) {
             setStackingCtx(element);
-        } else if (global.parseInt(computedStyle['z-index'], 10) === maxZIndex) {
+        } else if (global.parseInt(computedStyle.zIndex, 10) === maxZIndex) {
+            // 这行代码存在bug，
             return;
         }
 
+        // 可以做 `if (global.parseInt(computedStyle.zIndex, 10) === maxZIndex)) return;` 优化
+        // 但需要考虑同一个堆叠上下文中存在和被修改元素层级相同、z-index值相同的弟弟级别堆叠元素
         element.style.zIndex = maxZIndex + 1;
     }
 
