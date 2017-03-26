@@ -45,10 +45,10 @@
     // needs to be accounted for when positioning the overlay element
     function getScrollbarOffset(el) {
         var $el = $(el);
-        var $body = $('body');
-        var scrollWidth = el.scrollWidth === undefined ? $body[0].scrollWidth : el.scrollWidth;
-        var scrollHeight = el.scrollHeight === undefined ? $body[0].scrollHeight : el.scrollHeight;
-        var scrollbarWidth = getScrollbarWidth();
+        var body = global.document.body;
+        var scrollWidth = el === global ? body.scrollWidth : el.scrollWidth;
+        var scrollHeight = el === global ? body.scrollHeight : el.scrollHeight;
+        var scrollbarWidth = getScrollbarWidth(el === global ? body : el);
 
         return {
             x: scrollWidth > $el.outerWidth() ? scrollbarWidth : 0,
@@ -62,7 +62,7 @@
         var rect;
         // https://api.jquery.com/position/
         // relative to the offset parent
-        var offset = el === global ? { top: 0, left: 0 } : $(el).position();
+        var offset;
 
         // if containing element is the window object
         // then use $ methods for getting the width and height
@@ -76,8 +76,13 @@
                 top: 0,
                 bottom: height
             };
+            offset = {
+                top: 0,
+                left: 0,
+            }
         } else {
             rect = el.getBoundingClientRect();
+            offset = $(el).position();
         }
 
         return {
@@ -89,7 +94,7 @@
             bottom: offset.top + (rect.bottom - rect.top),
             // left relative to the element's offset parent
             left: offset.left,
-            right: rect.right
+            right: offset.left + (rect.right - rect.left)
         };
     }
 
@@ -134,28 +139,35 @@
                 break;
             case 'BC':
                 pos.bottom = 0;
-                pos.left = ((($parent.outerWidth() -
-                    scrollbarOffset.y - $el.outerWidth()) / 2) +
-                    $parent.scrollLeft());
+                pos.left = (
+                        (($parent.outerWidth() - scrollbarOffset.x - $el.outerWidth()) / 2) +
+                        $parent.scrollLeft()
+                    );
                 break;
             case 'TC':
                 pos.top = 0;
+                pos.left = (
+                        (($parent.outerWidth() - scrollbarOffset.x - $el.outerWidth()) / 2) +
+                        $parent.scrollLeft()
+                    );
                 break;
             case 'M':
-                pos.left = ((($parent.outerWidth() -
-                    scrollbarOffset.y - $el.outerWidth()) / 2) +
-                    $parent.scrollLeft());
-                pos.top = ((($parent.outerHeight() -
-                    scrollbarOffset.x - $el.outerHeight()) / 2) +
-                    $parent.scrollTop());
+                pos.left = (
+                        (($parent.outerWidth() - scrollbarOffset.x - $el.outerWidth()) / 2) +
+                        $parent.scrollLeft()
+                    );
+                pos.top = (
+                        (($parent.outerHeight() - scrollbarOffset.y - $el.outerHeight()) / 2) +
+                        $parent.scrollTop()
+                    );
                 break;
         }
 
         // if the positions are less than 0 then
         // element being positioned is larger than
         // its container
-        pos.left = pos.left > 0 ? pos.left : 0;
-        pos.top = pos.top > 0 ? pos.top : 0;
+        pos.left = Math.max(pos.left, 0);
+        pos.top = Math.max(pos.top, 0);
 
         // position the element absolutely and
         // set the top and left properties
