@@ -8,33 +8,32 @@
             height: '200px'
         };
         var outerCss = {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            'z-index': -1,
             width: '200px',
             // outer element height is smaller than inner element height
             // this will cause a scrollbar
             height: '150px',
-            position: 'absolute',
-            top: 0,
-            left: 0,
             visibility: 'hidden',
-            overflow: 'hidden'
+            overflow: 'scroll'
         };
         var $inner = $('<div>test</div>').css(innerCss);
         var $outer = $('<div></div>').css(outerCss).append($inner);
-        var innerEl = $inner[0];
         var outerEl = $outer[0];
 
         $(parentEl || 'body').append(outerEl);
         // get the layout width of the the inner element inlcuding the scrollbar
-        var innerWidth = innerEl.offsetWidth;
-        $outer.css('overflow', 'scroll');
+        var outerWidth = outerEl.offsetWidth;
         // get the inner width of the outer element, but do not include the scrollbar
-        var outerWidth = $outer[0].clientWidth;
+        var innerWidth = outerEl.clientWidth;
         // remove the elements from the DOM
         $outer.remove();
 
         // subtract the outer element width from the inner element width
         // this difference is the width of the scrollbar
-        return (innerWidth - outerWidth);
+        return (outerWidth - innerWidth);
     }
 
     // cache value for cases where scrollbar widths are consistent
