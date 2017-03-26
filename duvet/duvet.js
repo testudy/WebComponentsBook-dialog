@@ -187,8 +187,45 @@
         }
     }
 
+    // 和jenga中代码重复
+    function getComputedStyle(element) {
+        if (global.getComputedStyle) {
+            return global.getComputedStyle(element);
+        }
+
+        // 参考：http://snipplr.com/view/13523/ 修改
+        if (!global.getComputedStyle) {
+            var computedStyle = {};
+
+            for (var i in element.currentStyle) {
+                computedStyle[i] = element.currentStyle[i];
+            }
+
+            computedStyle.getPropertyValue = function (property) {
+                var re = /(\-([a-z]){1})/g;
+                if (property === 'float') {
+                    property = 'styleFloat';
+                }
+                if (re.test(property)) {
+                    property = property.replace(re, function () {
+                        return arguments[2].toUpperCase();
+                    });
+                }
+                return this[property] || null;
+            };
+
+            return computedStyle;
+        }
+    }
+
     // used to get the margins for offset parents
     function getMargins(el) {
+        if (el === global.document.body && getComputedStyle(el).position === 'static') {
+            return {
+                top: 0,
+                left: 0
+            };
+        }
         var $el = $(el);
         var marginTop = parseInt($el.css('margin-top'), 10);
         var marginLeft = parseInt($el.css('margin-left'), 10);
