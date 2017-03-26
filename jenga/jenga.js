@@ -160,9 +160,6 @@
 
         if (!isStackingCtx(element)) {
             setStackingCtx(element);
-        } else if (global.parseInt(computedStyle.zIndex, 10) === maxZIndex) {
-            // 这行代码存在bug，
-            return;
         }
 
         // 可以做 `if (global.parseInt(computedStyle.zIndex, 10) === maxZIndex)) return;` 优化

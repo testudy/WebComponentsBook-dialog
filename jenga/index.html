@@ -7,9 +7,17 @@
 </head>
 
 <body>
-    <div style="z-index: 0; position: relative;"></div>
-    <div style="z-index: 5; position: relative;"></div>
-    <div style="z-index: 20; position: relative;" id="foo"></div>
+    <div>
+        <div style="position: relative; z-index: 2"></div>
+    </div>
+    <div>
+        <div>
+            <div style="position: relative; z-index: 6">
+                <div style="position: relative; z-index: 7"></div>
+            </div>
+        </div>
+    </div>
+    <div id="foo"></div>
     <script src="jenga.js"></script>
     <script>
         jenga.bringToFront(document.getElementById('foo'));
