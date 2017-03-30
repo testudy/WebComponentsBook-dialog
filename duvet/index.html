@@ -9,6 +9,20 @@
             width: 800px;
             height: 200px;
             background: #000;
+            border: 10px solid #cc0;
+        }
+
+        .inner-marker {
+            margin: 20px;
+            width: 300px;
+            height: 100px;
+            background: #ccc;
+        }
+        .outer-align,
+        .inner-align {
+            width: 30px;
+            height: 50px;
+            background: #c00;
         }
         
         .component,
@@ -16,31 +30,49 @@
             width: 400px;
             height: 200px;
             background: #ccc;
+            border: 10px solid #c0c;
         }
         
         .align {
             background: #ff0000;
+            border: 10px solid #0cc;
         }
     </style>
 </head>
 
 <body>
-    <div class="marker"></div>
+    <div class="marker">
+        <div class="inner-marker"></div>
+        <div class="inner-align"></div>
+    </div>
     <div class="align"></div>
     <div class="component"></div>
+    <div class="outer-align"></div>
     <script src="../lib/jquery/1.12.4/jquery.js"></script>
     <script src="../jenga/jenga.js"></script>
     <script src="duvet.js"></script>
     <script>
         (function () {
-            var overlay = new Duvet($('.component')[0]);
-            overlay.position();
-
-            var overlay2 = new Duvet($('.align')[0], {
+            var overlay = new Duvet($('.align')[0], {
                 alignToEl: $('.marker')[0],
                 align: 'BR'
             });
+            overlay.position();
+
+            var overlay2 = new Duvet($('.inner-align')[0], {
+                alignToEl: $('.inner-marker')[0],
+                align: 'BR'
+            });
             overlay2.position();
+
+            var overlay3 = new Duvet($('.outer-align')[0], {
+                alignToEl: document.body,
+                align: 'BR'
+            });
+            overlay3.position();
+
+            var overlay4 = new Duvet($('.component')[0]);
+            overlay4.position();
         })();
     </script>
 </body>

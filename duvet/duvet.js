@@ -56,6 +56,18 @@
         };
     }
 
+    // used to get the margins for offset parents
+    function getMargins(el) {
+        var $el = $(el);
+        var marginTop = parseInt($el.css('margin-top'), 10);
+        var marginLeft = parseInt($el.css('margin-left'), 10);
+
+        return {
+            top: isNaN(marginTop) ? 0 : marginTop,
+            left: isNaN(marginLeft) ? 0 : marginLeft
+        };
+    }
+
     function getDimensions(el) {
         // https://developer.mozilla.org/en-US/docs/Web/API/Element.getBoundingClientRect
         // relative to the viewport
@@ -63,6 +75,7 @@
         // https://api.jquery.com/position/
         // relative to the offset parent
         var offset;
+        var margins;
 
         // if containing element is the window object
         // then use $ methods for getting the width and height
@@ -78,23 +91,28 @@
             };
             offset = {
                 top: 0,
-                left: 0,
-            }
+                left: 0
+            };
+            margins = {
+                top: 0,
+                left: 0
+            };
         } else {
             rect = el.getBoundingClientRect();
             offset = $(el).position();
+            margins = getMargins(el);
         }
 
         return {
             width: rect.right - rect.left,
             height: rect.bottom - rect.top,
             // top relative to the element's offset parent
-            top: offset.top,
+            top: offset.top + margins.top,
             // bottom relative to the element's offset parent
-            bottom: offset.top + (rect.bottom - rect.top),
+            bottom: offset.top + margins.top + (rect.bottom - rect.top),
             // left relative to the element's offset parent
-            left: offset.left,
-            right: offset.left + (rect.right - rect.left)
+            left: offset.left + margins.left,
+            right: offset.left + margins.left + (rect.right - rect.left)
         };
     }
 
@@ -218,30 +236,11 @@
         }
     }
 
-    // used to get the margins for offset parents
-    function getMargins(el) {
-        if (el === global.document.body && getComputedStyle(el).position === 'static') {
-            return {
-                top: 0,
-                left: 0
-            };
-        }
-        var $el = $(el);
-        var marginTop = parseInt($el.css('margin-top'), 10);
-        var marginLeft = parseInt($el.css('margin-left'), 10);
-
-        return {
-            top: isNaN(marginTop) ? 0 : marginTop,
-            left: isNaN(marginLeft) ? 0 : marginLeft
-        };
-    }
-
     // align the overlay el to another element in the DOM
     function align(el, options) {
         var alignToElDim = getDimensions(options.alignToEl);
         var css = { display: 'block', visibility: 'visible', position: 'absolute' };
         var $el = $(el);
-        var parentAlignToElMargins = getMargins(options.alignToEl.parentNode);
 
         // hide element, but keep dimensions by setting the visibility to hidden
         $el.css({
@@ -253,49 +252,39 @@
         // get element's dimensions
         var elDim = getDimensions(el);
 
-        // ensure that alignToEl parent el is the offset parent
-        if (options.alignToEl.parentNode !== options.alignToEl.offsetParent) {
-            options.alignToEl.parentNode.style.position = 'relative';
-        }
-
         // use the alignToEl and el dimensions and position to calculate
         // the el's position
         switch (options.align) {
             case 'TL':
-                css.top = (alignToElDim.top - elDim.height) - parentAlignToElMargins.top;
-                css.left = alignToElDim.left - parentAlignToElMargins.left;
+                css.top = alignToElDim.top - elDim.height;
+                css.left = alignToElDim.left;
                 break;
             case 'TR':
-                css.top = (alignToElDim.top - elDim.height) - parentAlignToElMargins.top;
-                css.left = (alignToElDim.right - elDim.width) - parentAlignToElMargins.left;
+                css.top = alignToElDim.top - elDim.height;
+                css.left = alignToElDim.right - elDim.width;
                 break;
             case 'BL':
-                css.top = alignToElDim.bottom - parentAlignToElMargins.top;
-                css.left = alignToElDim.left - parentAlignToElMargins.left;
+                css.top = alignToElDim.bottom;
+                css.left = alignToElDim.left;
                 break;
             case 'BR':
-                css.top = alignToElDim.bottom - parentAlignToElMargins.top;
-                css.left = (alignToElDim.right - elDim.width) - parentAlignToElMargins.left;
+                css.top = alignToElDim.bottom;
+                css.left = alignToElDim.right - elDim.width;
                 break;
             case 'BC':
-                css.top = alignToElDim.bottom - parentAlignToElMargins.top;
-                css.left = (((alignToElDim.width - elDim.width) / 2) +
-                    alignToElDim.left) - parentAlignToElMargins.left;
+                css.top = alignToElDim.bottom;
+                css.left = (alignToElDim.width - elDim.width) / 2 + alignToElDim.left;
                 break;
             case 'TC':
-                css.top = (alignToElDim.top - elDim.height) - parentAlignToElMargins.top;
-                css.left = (((alignToElDim.width - elDim.width) / 2) +
-                    alignToElDim.left) - parentAlignToElMargins.left;
+                css.top = alignToElDim.top - elDim.height;
+                css.left = (alignToElDim.width - elDim.width) / 2 + alignToElDim.left;
                 break;
             case 'M':
-                css.top = (((alignToElDim.height - elDim.height) / 2) +
-                    alignToElDim.top) - parentAlignToElMargins.top;
-                css.left = (((alignToElDim.width - elDim.width) / 2) +
-                    alignToElDim.left) - parentAlignToElMargins.left;
+                css.top = (alignToElDim.height - elDim.height) / 2 + alignToElDim.top;
+                css.left = (alignToElDim.width - elDim.width) / 2 + alignToElDim.left;
                 break;
         }
 
-        jenga.bringToFront(el, true);
         $el.css(css);
     }
 
@@ -340,11 +329,14 @@
         } else {
             position(this.el, this.options);
         }
+        jenga.bringToFront(this.el);
     };
 
     // sets instance options
     Duvet.prototype.setOptions = function (options) {
-        this.options = options ? $.extend(this.options, options) : this.options;
+        if (options) {
+            this.options = $.extend(this.options, options);
+        }
     };
 
     // clears out any developer defined references to ensure
