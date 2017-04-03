@@ -28,32 +28,12 @@
         }
     };
 
-    // merge default CSS and developer defined CSS
-    // this is necessary because $.extend is shallow
-    function mergeResizeHandleCss(defaultCss, instanceCss) {
-        var retVal = {};
-
-        // iterate over default css properties
-        for (var k in defaultCss) {
-            // set return value poperty equal to the instance property defined
-            // by the developer or the default css property value; it is also possible
-            // to go down one more layer, but this assumes wholesale property
-            // replacement
-            retVal[k] = instanceCss[k] || defaultCss[k];
-        }
-
-        return retVal;
-    }
-
     // create resizable instance
     function ApacheChief(el, options) {
         this.el = el;
         this.$el = $(el);
         // extend options with developer defined options
-        this.options = $.extend({}, defaults, options);
-
-        // extend isn't deep, so ensure that handle css is merged properly
-        mergeResizeHandleCss(this.options, options || {});
+        this.options = $.extend(true, {}, defaults, options);
 
         // create resize handles
         this.createResizeHandles();
