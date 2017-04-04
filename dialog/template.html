@@ -21,7 +21,7 @@
 </head>
 
 <body>
-    <template>
+    <template id="dialog">
         <div role="dialog" aria-labelledby="title" aria-describedby="content">
             <h2 id="title">I am a title</h2>
             <p id="content">Look at me! I am content.</p>
@@ -49,27 +49,29 @@
                     './dialog.js',
                 ];
 
-                scripts.reduce(function (mem, src) {
-                    return loadJs(src);
-                }, null).onload = function () {
-                    var dialog = new Dialog({
-                        $el: '[role="dialog"]',
-                        draggable: true,
-                        resizable: true,
-                        events: {
-                            'click [data-action]': function (e) {
-                                var action = $(e.currentTarget).attr('data-action');
-                                e.preventDefault();
-                                this[action]();
-                            }
-                        }
-                    });
-
-                    dialog.show();
-                };
+                scripts.forEach(loadJs);
             }());
         </script>
     </template>
+    <script src="./DialogTemplate.js"></script>
+    <script>
+        (function () {
+            var dialog = new DialogTemplate({
+                draggable: true,
+                resizable: true,
+                events: {
+                    'click [data-action]': function (e) {
+                        var action = $(e.currentTarget).attr('data-action');
+                        e.preventDefault();
+                        this[action]();
+                    }
+                },
+                onReady: function () {
+                    dialog.api.show();
+                }
+            });
+        }());
+    </script>
 </body>
 
 </html>
