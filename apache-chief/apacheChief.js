@@ -19,13 +19,13 @@
     var defaults = {
         handles: ['BR'],
         handlesCss: {
-            TM: $.extend({}, handlesCss, { cursor: 'n-resize', top: 0, left: '50%' }),
+            TM: $.extend({}, handlesCss, { cursor: 'n-resize', top: 0, left: '50%', 'margin-left': '-5px' }),
             TR: $.extend({}, handlesCss, { cursor: 'ne-resize', top: 0, right: 0 }),
-            MR: $.extend({}, handlesCss, { cursor: 'e-resize', bottom: '50%', right: 0 }),
+            MR: $.extend({}, handlesCss, { cursor: 'e-resize', top: '50%', right: 0, 'margin-top': '-5px' }),
             BR: $.extend({}, handlesCss, { bottom: 0, right: 0 }),
-            BM: $.extend({}, handlesCss, { cursor: 's-resize', bottom: 0, left: '50%' }),
+            BM: $.extend({}, handlesCss, { cursor: 's-resize', bottom: 0, left: '50%', 'margin-left': '-5px' }),
             BL: $.extend({}, handlesCss, { cursor: 'sw-resize', bottom: 0, left: 0 }),
-            ML: $.extend({}, handlesCss, { cursor: 'w-resize', bottom: '50%', left: 0 }),
+            ML: $.extend({}, handlesCss, { cursor: 'w-resize', top: '50%', left: 0, 'margin-top': '-5px' }),
             TL: $.extend({}, handlesCss, { cursor: 'nw-resize' }),
         }
     };
