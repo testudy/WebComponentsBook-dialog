@@ -22,8 +22,8 @@
             MR: $.extend({}, handlesCss, { cursor: 'e-resize', bottom: '50%', right: 0 }),
             BR: $.extend({}, handlesCss, { bottom: 0, right: 0 }),
             BM: $.extend({}, handlesCss, { cursor: 's-resize', bottom: 0, left: '50%' }),
-            ML: $.extend({}, handlesCss, { cursor: 'w-resize', bottom: '50%', left: 0 }),
             BL: $.extend({}, handlesCss, { cursor: 'sw-resize', bottom: 0, left: 0 }),
+            ML: $.extend({}, handlesCss, { cursor: 'w-resize', bottom: '50%', left: 0 }),
             TL: $.extend({}, handlesCss, { cursor: 'nw-resize' }),
         }
     };
@@ -68,12 +68,63 @@
         $handles.css('display', 'block');
     };
 
+    // get coordinates for resizing
+    ApacheChief.prototype.getPositionDiffs = function (pageXDiff, pageYDiff, direction) {
+        var diffs = {
+            xPos: 0,
+            yPos: 0,
+            xDim: 0,
+            yDim: 0
+        };
+
+        switch (direction) {
+            case 'TR':
+                diffs.yPos = pageYDiff;
+                diffs.xDim = pageXDiff;
+                diffs.yDim = -pageYDiff;
+                break;
+            case 'TL':
+                diffs.xPos = pageXDiff;
+                diffs.yPos = pageYDiff;
+                diffs.xDim = -pageXDiff;
+                diffs.yDim = -pageYDiff;
+                break;
+            case 'BL':
+                diffs.xPos = pageXDiff;
+                diffs.xDim = -pageXDiff;
+                diffs.yDim = pageYDiff;
+                break;
+            case 'ML':
+                diffs.xPos = pageXDiff;
+                diffs.xDim = -pageXDiff;
+                break;
+            case 'TM':
+                diffs.yPos = pageYDiff;
+                diffs.yDim = -pageYDiff;
+                break;
+            case 'BM':
+                diffs.xDim = 0;
+                diffs.yDim = pageYDiff;
+                break;
+            case 'MR':
+                diffs.xDim = pageXDiff;
+                diffs.yDim = 0;
+                break;
+            case 'BR':
+                diffs.xDim = pageXDiff;
+                diffs.yDim = pageYDiff;
+                break;
+        }
+
+        return diffs;
+    };
+
     // bind event handlers
     ApacheChief.prototype.bind = function () {
         var self = this;
 
-        $('body').on('mouseup.apache-chief', function (e) {
-            $(window).off('mousemove.apache-chief');
+        $(global.document.documentElement).on('mouseup.apache-chief', function (e) {
+            $(global.document.documentElement).off('mousemove.apache-chief');
         });
 
         this.$el.find('.apache-chief-resize').on('mousedown.apache-chief', function (e) {
@@ -88,53 +139,11 @@
                 y: e.pageY
             };
 
-            // get coordinates for resizing
-            function getPositionDiffs(adjustPosition, e, mousePos, direction) {
-                var diffs = {
-                    xDim: direction === 'BM' ? 0 : e.pageX - mousePos.x,
-                    yDim: direction === 'MR' ? 0 : e.pageY - mousePos.y,
-                    xPos: 0,
-                    yPos: 0
-                };
-
-                if (!adjustPosition) {
-                    return diffs;
-                }
-
-                switch (direction) {
-                    case 'TR':
-                        diffs.yPos = diffs.yDim;
-                        diffs.yDim = -diffs.yDim;
-                        break;
-                    case 'TL':
-                        diffs.xPos = diffs.xDim;
-                        diffs.xDim = -diffs.xDim;
-                        diffs.yPos = diffs.yDim;
-                        diffs.yDim = -diffs.yDim;
-                        break;
-                    case 'BL':
-                        diffs.xPos = diffs.xDim;
-                        diffs.xDim = -diffs.xDim;
-                        break;
-                    case 'ML':
-                        diffs.xPos = diffs.xDim;
-                        diffs.xDim = -diffs.xDim;
-                        diffs.yDim = 0;
-                        break;
-                    case 'TM':
-                        diffs.yPos = diffs.yDim;
-                        diffs.yDim = -diffs.yDim;
-                        diffs.xDim = 0;
-                        break;
-                }
-
-                return diffs;
-            }
-
-            $(window).on('mousemove.apache-chief', function (e) {
+            $(global.document.documentElement).on('mousemove.apache-chief', function (e) {
+                //console.log('mousemove');
                 // get the differences between the mousedown position and the
                 // position from the mousemove events
-                var diffs = getPositionDiffs(adjustPosition, e, mousePos, direction);
+                var diffs = self.getPositionDiffs(e.pageX - mousePos.x, e.pageY - mousePos.y, direction);
                 // get the draggable el current position relative to the document
                 var elPos;
 
@@ -149,7 +158,7 @@
 
                 // adjust the top and bottom
                 if (adjustPosition) {
-                    elPos = self.$el.offset();
+                    elPos = self.$el.position();
                     self.$el.css({
                         top: elPos.top + diffs.yPos,
                         left: elPos.left + diffs.xPos,
@@ -169,9 +178,11 @@
 
     // clean up instance
     ApacheChief.prototype.destroy = function () {
-        this.$el.off('mousedown.apache-chief');
-        // remove the resize handles
-        this.$el.find('.apache-chief-resize').remove();
+        // remove the resize handles & events
+        this.$el.find('.apache-chief-resize').off('mousedown.apache-chief').remove();
+
+        $(global.document.documentElement).off('mouseup.apache-chief');
+        $(global.document.documentElement).off('mousemove.apache-chief');
 
         this.el = null;
         this.$el = null;
