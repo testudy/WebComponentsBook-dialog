@@ -124,10 +124,19 @@
         var self = this;
 
         $(global.document.documentElement).on('mouseup.apache-chief', function (e) {
+            global.document.releaseCapture();
             $(global.document.documentElement).off('mousemove.apache-chief');
         });
 
         this.$el.find('.apache-chief-resize').on('mousedown.apache-chief', function (e) {
+            // IE 兼容代码，解决鼠标超出浏览器界外之后依然可以拖动
+            // https://developer.mozilla.org/zh-CN/docs/Web/API/Element/setCapture
+            // https://developer.mozilla.org/zh-CN/docs/Web/API/Document/releaseCapture
+            // https://www.web-tinker.com/article/20241.html
+            if (e.target.setCapture) {
+                e.target.setCapture();
+            }
+
             var $handle = $(this);
             var direction = $handle.attr('data-handle');
             // if true then the handle moves in a position that only affects width and height
