@@ -31,11 +31,14 @@
 
         // unbind mousemove handler on mouseup
         $(global.document.documentElement).on('mouseup.shamen', function (e) {
+            global.document.releaseCapture();
             $(global.document.documentElement).off('mousemove.shamen');
         });
 
         this.$el.on('mousedown.shamen', selector, function (e) {
             // IE 兼容代码，解决鼠标超出浏览器界外之后依然可以拖动
+            // https://developer.mozilla.org/zh-CN/docs/Web/API/Element/setCapture
+            // https://developer.mozilla.org/zh-CN/docs/Web/API/Document/releaseCapture
             // https://www.web-tinker.com/article/20241.html
             if (e.target.setCapture) {
                 e.target.setCapture();
