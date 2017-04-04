@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" type="text/css" href="dialog.css">
+    <meta charset="utf-8">
+    <title>Dialog Component Example</title>
+    <style type="text/css">
+        .component {
+            width: 400px;
+            height: 200px;
+            background: #ccc;
+            display: none;
+        }
+        
+        #title {
+            height: 20px;
+            background: #000;
+        }
+    </style>
+</head>
+
+<body>
+    <template>
+        <div role="dialog" aria-labelledby="title" aria-describedby="content">
+            <h2 id="title">I am a title</h2>
+            <p id="content">Look at me! I am content.</p>
+        </div>
+        <script>
+            (function () {
+                // https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/script
+
+                function loadJs(src) {
+                    var script = document.createElement('script');
+                    script.src = src;
+                    script.async = false;
+                    document.body.appendChild(script);
+
+                    return script;
+                }
+
+                var scripts = [
+                    '../lib/jquery/1.12.4/jquery.min.js',
+                    '../voltron/voltron.js',
+                    '../jenga/jenga.js',
+                    '../duvet/duvet.js',
+                    '../shamen/shamen.js',
+                    '../apache-chief/apacheChief.js',
+                    './dialog.js',
+                ];
+
+                scripts.reduce(function (mem, src) {
+                    return loadJs(src);
+                }, null).onload = function () {
+                    var dialog = new Dialog({
+                        $el: '[role="dialog"]',
+                        draggable: true,
+                        resizable: true,
+                        events: {
+                            'click [data-action]': function (e) {
+                                var action = $(e.currentTarget).attr('data-action');
+                                e.preventDefault();
+                                this[action]();
+                            }
+                        }
+                    });
+
+                    dialog.show();
+                };
+            }());
+        </script>
+    </template>
+</body>
+
+</html>
