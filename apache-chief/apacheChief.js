@@ -4,6 +4,8 @@
     'use strict';
 
     // default resize handle css
+    // https://developer.mozilla.org/zh-CN/docs/Web/CSS/cursor
+    // IE8（XP环境中）会将cursor的单向指针值显示位双向，但由于不支持双向指针的值，暂使用单向指针值
     var handlesCss = {
         width: '10px',
         height: '10px',
