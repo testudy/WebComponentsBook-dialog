@@ -124,7 +124,10 @@
         var self = this;
 
         $(global.document.documentElement).on('mouseup.apache-chief', function (e) {
-            global.document.releaseCapture();
+            if (global.document.releaseCapture) {
+                global.document.releaseCapture();
+            }
+            
             $(global.document.documentElement).off('mousemove.apache-chief');
         });
 
