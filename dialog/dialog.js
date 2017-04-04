@@ -1,4 +1,4 @@
-(function (window, $, Voltron, Duvet, Shamen, ApacheChief) {
+(function (global, $, Voltron, Duvet, Shamen, ApacheChief) {
 
     'use strict';
 
@@ -82,6 +82,6 @@
         Voltron.prototype.destroy.call(this);
     };
 
-    window.Dialog = window.Dialog || Dialog;
+    global.Dialog = global.Dialog || Dialog;
 
-})(window, jQuery, Voltron, Duvet, Shamen, ApacheChief);
+})(window, this.jQuery, this.Voltron, this.Duvet, this.Shamen, this.ApacheChief);
