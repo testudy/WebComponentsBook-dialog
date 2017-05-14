@@ -13,12 +13,15 @@
         options.$el = options.clone ? $(options.$el).clone() :
             $(options.$el);
         // append to body
-        $('body').append(options.$el);
+        // $('body').append(options.$el);
 
         Voltron.call(this, options);
 
         // create overlay instance
-        this.overlay = new Duvet(this.$el[0]);
+        this.overlay = new Duvet(this.$el[0], {
+            alignToEl: options.alignToEl,
+            align: options.align
+        });
 
         // create a draggable instance
         if (options.draggable) {
@@ -59,6 +62,9 @@
         // this will adjust z-index, set the display property,
         // and position the dialog
         this.overlay.position();
+        if (this.$el[0].parentNode && this.$el[0].parentNode.host) {
+            jenga.bringToFront(this.$el[0].parentNode.host);
+        }
     };
 
     // makes dialog invisible in the UI
@@ -84,4 +90,4 @@
 
     global.Dialog = global.Dialog || Dialog;
 
-})(window, this.jQuery, this.Voltron, this.Duvet, this.Shamen, this.ApacheChief);
+})(window, this.jQuery, this.Voltron, this.Duvet, this.Shamen, this.ApacheChief, this.jenga);

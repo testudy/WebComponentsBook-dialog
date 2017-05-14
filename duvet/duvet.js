@@ -329,7 +329,7 @@
         } else {
             position(this.el, this.options);
         }
-        jenga.bringToFront(this.el);
+        jenga.bringToFront((this.el.parentNode && this.el.parentNode.host) || this.el);
     };
 
     // sets instance options
