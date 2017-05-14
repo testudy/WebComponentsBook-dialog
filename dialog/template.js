@@ -17,10 +17,12 @@
                     }
                 };
             } else {
-                this.api = new global[this.API](this.options);
-                if (this.options.onReady) {
-                    this.options.onReady();
-                }
+                setTimeout(function () {
+                    this.api = new global[this.API](this.options);
+                    if (this.options.onReady) {
+                        this.options.onReady();
+                    }
+                }, 0);
             }
 
             return this;
@@ -33,4 +35,11 @@
     }
 
     global.templateFactory = templateFactory;
+}(this));
+
+(function (global) {
+    var template = document.querySelector('#dialog');
+    global.DialogTemplate = templateFactory(template, 'Dialog', {
+        $el: '[role="dialog"]',
+    });
 }(this));
