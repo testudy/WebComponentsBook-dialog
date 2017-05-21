@@ -27,7 +27,8 @@
                     var script = document.createElement('script');
                     script.src = src;
                     script.async = false;
-                    document.querySelector('#host').shadowRoot.appendChild(script);
+                    //document.querySelector('#host').shadowRoot.appendChild(script);
+                    document.currentScript.parentNode.appendChild(script);
 
                     return script;
                 }

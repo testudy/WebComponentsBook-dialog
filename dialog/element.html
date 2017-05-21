@@ -27,7 +27,8 @@
                     var script = document.createElement('script');
                     script.src = src;
                     script.async = false;
-                    document.querySelector('dialog-component').shadowRoot.appendChild(script);
+                    //document.querySelector('dialog-component').shadowRoot.appendChild(script);
+                    document.currentScript.parentNode.appendChild(script);
 
                     return script;
                 }
