@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Dialog Component Example</title>
+</head>
+
+<body>
+    <template id="dialog">
+        <link rel="stylesheet" type="text/css" href="dialog.css">
+        <style type="text/css">
+            #title {
+                height: 20px;
+                background: #000;
+            }
+        </style>
+        <div role="dialog" aria-labelledby="title" aria-describedby="content">
+            <h2 id="title"></h2>
+            <p id="content"></p>
+        </div>
+        <script>
+            (function () {
+                // https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/script
+
+                function loadJs(src) {
+                    var script = document.createElement('script');
+                    script.src = src;
+                    script.async = false;
+                    //document.querySelector('dialog-component').shadowRoot.appendChild(script);
+                    document.currentScript.parentNode.appendChild(script);
+
+                    return script;
+                }
+
+                var scripts = [
+                    '../lib/jquery/1.12.4/jquery.min.js',
+                    '../voltron/voltron.js',
+                    '../jenga/jenga.js',
+                    '../duvet/duvet.js',
+                    '../shamen/shamen.js',
+                    '../apache-chief/apacheChief.js',
+                    './dialog.js',
+                ];
+
+                scripts.forEach(loadJs);
+            }());
+        </script>
+    </template>
+    <script src="./element.js"></script>
+</body>
+
+</html>

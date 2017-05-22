@@ -14,7 +14,7 @@
                 resizable: this.hasAttribute('resizable')
             };
 
-            const template = document.querySelector('#dialog');
+            const template = document.currentScript.ownerDocument.querySelector('#dialog');
             const content = document.importNode(template.content, true);
 
             this.root = this.createShadowRoot();
